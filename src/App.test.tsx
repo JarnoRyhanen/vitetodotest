@@ -1,10 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import App from "./App";
-import { test, expect } from "vitest";
+import { test, expect, afterEach } from "vitest";
 import React from "react";
 import '@testing-library/jest-dom/vitest';
 import TodoTable from "./TodoTable";
-import { afterEach } from "node:test";
 
 test("renders App component", () => {
     render(<App />);
@@ -42,4 +41,27 @@ test("add todo", () => {
 
     const table = screen.getByRole("table");
     expect(table).toHaveTextContent(/go to coffee/i);
+});
+
+test("clear todos", () => {
+    render(<App />);
+
+    const table = screen.getByRole("table");
+
+    const desc = screen.getByPlaceholderText("Description");
+    fireEvent.change(desc, { target: { value: "Get a job" } });
+
+    const date = screen.getByPlaceholderText("Date");
+    fireEvent.change(date, { target: { value: "20.10.2025" } });
+
+    const addButton = screen.getByText("Add");
+    fireEvent.click(addButton);
+
+    expect(table).toHaveTextContent(/Get a job/i)
+
+    const clearButton = screen.getByText("Clear");
+    fireEvent.click(clearButton);
+
+    expect(table).not.toHaveTextContent(/Get a job/i);
+    expect(table).toHaveTextContent("");
 });
